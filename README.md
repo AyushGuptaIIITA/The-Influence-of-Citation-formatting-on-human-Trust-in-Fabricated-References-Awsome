@@ -18,7 +18,7 @@ A curated collection of research papers, datasets, tools, implementations, and l
 The mass production of scholarly-looking text by large language models (LLMs) has made a specific failure mode highly consequential: the fabricated citation. Generative models routinely invent references that are stylistically perfect yet point to nonexistent work, with audits showing chatbots invent between roughly one-fifth and over half of their references. Research demonstrates that formal citation apparatus functions as a peripheral authority cue processed heuristically rather than verified systematically, leveraging cognitive fluency and the "seductive allure" of scientific-looking detail. This repository curates cross-disciplinary research on citation fabrication, source credibility, and mitigation strategies.
 
 ## AI-Assisted Research Paper
-**[A curated collection of research on how citation formatting and cognitive heuristics influence human trust in fabricated AI references]**
+**[The Influence of Citation formatting on human Trust in Fabricated References]**
 This paper reviews interdisciplinary evidence on why generative AI's fabricated references are frequently believed by readers rather than questioned. Drawing on cognitive psychology and credibility science, it explores how formal citation apparatus functions as a peripheral authority cue that triggers heuristic trust, and synthesizes current approaches to reference verification in the era of large language model. 
 [View Paper](paper/AI_Assisted_Research_Paper.pdf)
 
