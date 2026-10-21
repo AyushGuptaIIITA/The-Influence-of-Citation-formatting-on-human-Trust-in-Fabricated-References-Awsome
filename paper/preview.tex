@@ -1,0 +1,21 @@
+% preview.tex -- LOCAL STAND-IN used only because IEEEtran.cls is not installed in the build sandbox.
+% It \input's the SAME body.tex as main.tex, so content, numbers, tables, figures and citations are
+% identical; only the page class differs. The submission PDF should be compiled from main.tex.
+\documentclass[10pt,twocolumn]{article}
+\usepackage[margin=0.75in,columnsep=0.25in]{geometry}
+
+\usepackage{cite,amsmath,amssymb,graphicx,booktabs,url}
+\usepackage{tikz}\usetikzlibrary{arrows.meta, positioning}
+\usepackage[colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
+\newenvironment{IEEEkeywords}{\par\noindent\textit{Index Terms---}}{\par\medskip}
+\renewcommand{\abstractname}{Abstract}
+\input{numbers}
+\title{\bfseries How Far Can a Reference Be Judged by Its Format? A Controlled Simulation of Format-Only, Title-Only and Full-Field Citation Verification}
+\author{Ayush Gupta\\ \small Indian Institute of Information Technology, Prayagraj, Uttar Pradesh, India\\ \small MSE2026011@iiita.ac.in}
+\date{}
+\begin{document}
+\maketitle
+\input{body}
+\bibliographystyle{ieeetr}
+\bibliography{references}
+\end{document}

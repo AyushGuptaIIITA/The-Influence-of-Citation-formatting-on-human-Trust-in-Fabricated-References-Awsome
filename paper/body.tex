@@ -1,0 +1,317 @@
+% body.tex -- shared by main.tex (IEEEtran, for Overleaf) and preview.tex (local stand-in build).
+% Every number below is either a \N... macro (generated from results/ by scripts/make_paper_numbers.py)
+% or is attributed to a cited, verified source.
+
+\begin{abstract}
+Fabricated references are hard to spot because they are formatted like real ones. A literature review
+by the author argued that format inspection alone therefore cannot separate real from fabricated
+references, and that detection must be grounded in a bibliographic database. This paper tests the
+computational part of that argument in a small, fully offline, controlled simulation. Using \NnKept{} real
+records from a personal bibliography as a closed-world index, we generate genuine references plus
+three families of defective ones (invented, chimeric, perturbed-real) and compare four verifiers under
+a frozen protocol: two format-only methods, a title-only lookup, and a full-field database consistency
+check. With a format-faithful fabricator, format-only verifiers sit at chance (AUROC \NVoneRAuroc{} for the
+learned classifier) and gain signal only as the fabricator becomes sloppier (AUROC \NVoneAurocHigh{} at
+a 50\% malformation rate). A title-only lookup finds invented titles (recall \NVthreeFone{}) but almost never chimeric ones (\NVthreeFtwo{}). The full-field check reaches recall \NVtwoRRec{} at a 5\% false-positive rate, yet its
+false-positive rate tracks index incompleteness (\NVtwoFprHalf{} at 50\% coverage), so at an assumed 2\% prevalence its
+positive predictive value falls from \NVtwoPpv{} to \NVtwoPpvHalf{}. Perturbed-real references are hardest
+(recall \NVtwoFthree{} on average, ranging \NfthreeMin{}--\NfthreeMax{} across seeds), which we attribute, post hoc, to the interaction between the
+false-positive budget and benign typing noise. All results concern the simulation, not language-model output or human readers;
+several are consequences of the design, as we state explicitly.
+\end{abstract}
+
+\begin{IEEEkeywords}
+citation verification, fabricated references, hallucination detection, controlled simulation, reproducibility
+\end{IEEEkeywords}
+
+\section{Introduction}
+Large language models can emit references with plausible authors, titles, venues and years that point to no real work.
+Walters and Wilder manually checked 636 citations from ChatGPT-written literature reviews and found 55\% (GPT-3.5) and
+18\% (GPT-4) entirely fabricated \cite{walters2023}. A companion review by the author \cite{gupta2026review} synthesised why such
+references are believed: their form acts as a peripheral authority cue, and verification effort is rarely applied. That review
+ended with two computational claims that it could not test itself: (i) because fabricated references are format-faithful,
+\emph{format inspection alone} cannot discriminate them; and (ii) automated matching can confirm that a source \emph{exists} but
+not that the reference \emph{as written} is consistent with it, so verification must be grounded in a database.
+
+This paper turns those claims into measurable questions. It is a controlled comparative study (a ``Pathway B'' study in the course
+taxonomy), not a new algorithm, and we make \emph{no claim of novelty}: citation-verifier benchmarks already exist, notably HALLMARK
+\cite{reizinger2026} and CiteTracer \cite{li2026}. Our contribution is a small, offline, fully reproducible study that isolates three
+variables those benchmarks mix together: how much signal \emph{format} carries when fabrications are format-faithful, what a
+\emph{title-only} lookup adds over a \emph{full-field} check, and how both degrade when the reference database is incomplete.
+
+\textbf{Research questions.} \textbf{RQ1:} If fabricated references copy the formatting of genuine ones, how well can format-only
+signals separate them? \textbf{RQ2:} Per fabrication family, what do title-only existence checking and full-field consistency checking
+each detect and miss? \textbf{RQ3:} How do they behave when the index covers only part of the genuine references, and what does that
+imply for the share of flags that are correct at a realistic prevalence?
+
+\textbf{Scope and honesty statement.} The fabrications here are produced by explicit rules, not by a language model; the index is a
+closed-world bibliography, not Crossref; and nothing is claimed about human trust. Section~\ref{sec:threats} lists the threats to validity.
+
+\section{Background and Related Work}
+\subsection{What the review established}
+Fig.~\ref{fig:loop} reproduces the review's account of how fabricated references gain unearned trust: correct-looking surface features
+act as a peripheral cue, are processed fluently, and displace systematic verification. Table~\ref{tab:review} restates the review's
+quantitative evidence with one correction: the review's draft table listed the 35--77\% figure of Khurana et al.\ as an ``error rate''.
+It is in fact a language model's hallucination rate on claim-judgement prompts and so measures model behaviour, not the share of
+references that are fabricated; the table now says what each study measured. The figures in Table~\ref{tab:review} were re-checked against the sources' abstracts or pages retrieved during this project.
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}[
+  box/.style={rectangle, draw=blue!60!black, fill=blue!5, rounded corners, thick, align=center,
+              text width=5.6cm, font=\scriptsize, inner sep=3pt},
+  arr/.style={-Stealth, thick, color=blue!70!black}, node distance=0.42cm]
+\node (a) [box] {\textbf{AI-generated text}\\contains a fabricated but perfectly formatted citation};
+\node (b) [box, below=of a] {\textbf{Peripheral authority cue}\\plausible authors, year, journal name, DOI};
+\node (c) [box, below=of b] {\textbf{Cognitive fluency}\\reader bypasses systematic verification};
+\node (d) [box, below=of c] {\textbf{Unearned trust}\\false claim is accepted as credible};
+\draw[arr] (a)--(b); \draw[arr] (b)--(c); \draw[arr] (c)--(d);
+\end{tikzpicture}
+\caption{The heuristic-processing loop for fabricated citations, as argued in the author's review \cite{gupta2026review}.
+This is the motivating hypothesis; the present study does \emph{not} test human readers.}
+\label{fig:loop}
+\end{figure}
+
+\begin{table*}[t]
+\caption{Citation-fabrication evidence from the review, restated with what each study actually measured (verified against primary sources).}
+\label{tab:review}
+\centering\footnotesize
+\begin{tabular}{@{}p{3.1cm}p{4.2cm}p{4.4cm}p{4.8cm}@{}}
+\toprule
+Study & Systems / sample & Quantity measured & Reported value \\
+\midrule
+Walters \& Wilder \cite{walters2023} & ChatGPT-3.5 and -4; 636 citations in 84 papers & Citations entirely fabricated & 55\% (GPT-3.5); 18\% (GPT-4) \\
+Cabezas-Clavijo \& Sidorenko-Bautista \cite{cabezas2025} & Eight consumer chatbots & Reference fully correct; flawed or fabricated & 26.5\% fully correct; $\approx$40\% flawed or fabricated \\
+Khurana et al.\ \cite{khurana2026} & Seven LLMs; 220{,}564 prompts; four domains & \emph{Model} hallucination rate on claim-judgement prompts (not a rate of fabricated references) & Up to 35--77\% (general knowledge) when a fabricated citation accompanies a true claim; +3 to $>$22 pp over a no-citation baseline \\
+Liu et al.\ \cite{liu2026} & U.S.\ court filings & Filings containing AI-fabricated citations (a count) & Over 1{,}000; growing year over year \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\subsection{Citation-verification benchmarks}
+HALLMARK \cite{reizinger2026} offers 2{,}526 BibTeX entries across 14 hallucination types and three difficulty tiers and evaluates a
+DOI-lookup baseline, frontier LLMs, tool-augmented agents and a rule-based verifier. Its abstract reports that false-positive rates, not
+recall, determine whether a verifier's flags are mostly true catches or mostly noise. CiteTracer \cite{li2026} proposes a 12-code field-level
+taxonomy, a 2{,}450-citation synthetic benchmark and a multi-agent detector. Aslett et al.\ \cite{aslett2024} show, for news, that searching
+online to check a claim can raise belief in it, a caution relevant to how people verify references. Our simulation is far smaller and
+simpler than these benchmarks; it is complementary in isolating format, title-only versus full-field matching, and index coverage.
+
+\section{Hypotheses and Decision Rules}
+Hypotheses and numeric decision rules were written and hashed before the reported runs (Section~\ref{sec:protocol}).
+\textbf{H1:} with a format-faithful fabricator the learned format-only classifier has AUROC in [0.45, 0.60].
+\textbf{H1b:} its AUROC rises by at least 0.15 as the fabricator's malformation rate goes from 0.05 to 0.50.
+\textbf{H2:} the full-field check achieves recall $\geq$0.85 at 5\% FPR with a complete index.
+\textbf{H3:} the title-only lookup has recall $\leq$0.20 on chimeric references and on every non-title perturbation.
+\textbf{H4:} with the full-coverage threshold held fixed, the full-field check's FPR is within 0.05 of $(1-c)+0.05c$ at index coverage $c$.
+A development smoke run on a separate, never-reported seed was inspected before the thresholds were written; the thresholds are
+therefore informed expectations, not blind predictions. Two defects were found after the first run and corrected (Section~\ref{sec:deviations}).
+
+\section{Method}
+\subsection{Corpus and index}
+The index is \texttt{frankenstein.bib} \cite{swift}, a personal bibliography shipped with TeX Live: \NnRaw{} bibliographic entries, of which \NnKept{} have an author,
+title, four-digit year and (for articles) a journal, after removing duplicates. These comprise \NnBook{} books, \NnArticle{} articles and \NnOther{} chapters or
+proceedings papers, years \NyearMin{}--\NyearMax{}. We treat every entry as a real work; this is an assumption (the bibliography is a researcher's
+library) that we could not verify independently. The file carries no stated licence, so the repository stores only its SHA-256 and a build
+script, not the file.
+
+\subsection{Candidate generation}
+For each indexed record the generator emits one candidate per class (Fig.~\ref{fig:pipeline}):
+\textbf{G} (genuine): the record as typed with benign noise; \textbf{F1} (invented): authors recombined from name pools, a title from a
+word-bigram chain rejected if within similarity 0.9 of any indexed title, and venue, publisher and numbers borrowed from a random donor
+record; \textbf{F2} (chimeric): all metadata of record A with the title of record B, echoing the mismatched-field failure described in the review; \textbf{F3} (perturbed real): exactly one field of an indexed record altered (year $\pm$1--5, an author surname, one title word,
+the journal or publisher, or volume and pages), echoing reports of wrong years, volumes and pages \cite{walters2023}.
+\emph{Benign noise} (initials, dropped optional fields, a title typo, sentence case, dropped subtitle) uses identical rates for all four
+classes, so presentation style carries no label. \emph{Format malformation} (mangled year, pages, venue, author string, title) is applied
+per field at rate $\rho_g{=}0.05$ to genuine and $\rho_f\in\{0.05,0.25,0.50\}$ to defective candidates; $\rho_f{=}\rho_g$ is the
+\emph{format-faithful} null condition. The simulation encodes mechanisms from the literature; it is not claimed to match any model's output.
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}[
+  bx/.style={rectangle, draw=blue!60!black, fill=blue!5, rounded corners, thick, align=center,
+             font=\scriptsize, inner sep=3pt, text width=3.3cm, minimum height=0.95cm},
+  arr/.style={-Stealth, thick, color=blue!70!black}]
+\node[bx] (a) at (0,0) {\textbf{1. Index}\\\NnKept{} real records};
+\node[bx] (b) at (4.0,0) {\textbf{2. Generator}\\G, F1, F2, F3 + benign noise + malformation ($\rho_g,\rho_f$)};
+\node[bx] (c) at (4.0,-2.05) {\textbf{3. Verifiers}\\V0 random, R1 rule, V1 format LR, V3 title-only, V2 full-field};
+\node[bx] (d) at (0,-2.05) {\textbf{4. Evaluation}\\grouped 5-fold CV; $\tau$ at 5\% FPR from training folds};
+\draw[arr] (a)--(b); \draw[arr] (b)--(c); \draw[arr] (c)--(d);
+\draw[arr, dashed] (a.south) -- ++(0,-0.35) -| ([xshift=-0.9cm]c.north) node[pos=0.28, above, font=\tiny] {index lookup (V2, V3)};
+\end{tikzpicture}
+\caption{Experimental pipeline. Variants of one source record always share a cross-validation fold (no leakage).}
+\label{fig:pipeline}
+\end{figure}
+
+\subsection{Verifiers}
+\textbf{V0} is a random scorer. \textbf{R1} is a naive rule: accept a reference iff it looks well-formed (valid year, no bare ``et al.'',
+no all-caps title, valid pages, and so on). \textbf{V1} is an L2 logistic regression on \NnFeat{} structural features (counts, validity flags,
+presence flags, type); it never sees the index or lexical title content. \textbf{V3} retrieves the top five index titles by character
+TF-IDF and scores the best title similarity (an \emph{existence} check). \textbf{V2} scores the same candidates by a fixed weighted
+consistency over title (0.40), authors (0.30), year (0.10), venue or publisher (0.10) and volume or pages (0.10), renormalised over fields
+present. V2 and V3 are simplified stand-ins for database cross-checking; they are \emph{not} reproductions of any published tool.
+
+\subsection{Protocol and metrics}\label{sec:protocol}
+Five seeds (0--4) each regenerate all candidates and folds. Folds are grouped by source record (variants of one record never straddle
+train and test). Every operating threshold is the 5th (or 95th) percentile of genuine \emph{training} scores, so each verifier is held
+to a 5\% target FPR chosen without looking at test data. The \emph{primary metric} is out-of-fold recall of defective references at that
+operating point; secondary metrics are mean-over-folds AUROC, per-family recall and PPV at an assumed 2\% prevalence, computed as
+$\mathrm{PPV}=\frac{r\,\pi}{r\,\pi+f\,(1-\pi)}$ with recall $r$, FPR $f$ and prevalence $\pi{=}0.02$. In the coverage sweep a random fraction $c$
+of index records is removed while thresholds stay fixed at their full-coverage values. We report mean $\pm$ SD over five seeds and claim no
+significance tests. The protocol file and its hash were frozen before the reported runs.
+
+\subsection{Reproducibility}
+Python 3.12.3, scikit-learn 1.8.0 \cite{pedregosa2011}, NumPy 2.4.4, pandas 3.0.2, one CPU core; all five seeds and three fidelity levels
+run in about two minutes (\texttt{python scripts/run\_experiments.py}). Figures and tables are generated from the saved CSVs; no result is typed by hand.
+
+\section{Baseline Validation}
+Before any comparison we checked behaviour, not just execution, on a non-reported seed: exact copies of all \NnKept{} records score 1.0 under V2
+and V3 and retrieve the correct record every time; candidate generation is bit-for-bit deterministic; folds share no group; and V1 trained on
+shuffled labels gives AUROC \NvalPermMean{} (range \NvalPermMin{}--\NvalPermMax{} over five shuffles), as it must. Altering one field of a clean probe lowers the V2 score
+by \NvalDropYear{} (year, weight 0.10), \NvalDropAuthor{} (first author, weight 0.30) and \NvalDropVenue{} (venue or publisher, weight 0.10); the last is below its weight because
+a different venue string still earns partial fuzzy credit, which we flag as a limitation of V2. Twelve unit tests pass; three are regression tests added after defects D1 and D2 (Section~\ref{sec:deviations}), which the original nine tests had not caught.
+
+\section{Results}
+\subsection{Main comparison (RQ1, RQ2)}
+Table~\ref{tab:main} gives the primary results for the format-faithful condition with a complete index.
+V2 attains recall \NVtwoRRec{} at FPR \NVtwoRFpr{} (AUROC \NVtwoRAuroc{}). V3 attains recall \NVthreeRRec{}; the two format-only methods are at chance
+(V1 AUROC \NVoneRAuroc{}, R1 AUROC \NRoneAuroc{}), and R1 achieves its recall only by flagging \NRoneFpr{} of genuine references.
+V1's realised FPR (\NVoneRFpr{}) exceeds its 5\% target, so its thresholds do not transfer perfectly from training to test.
+
+\begin{table*}[t]
+\caption{Main comparison, format-faithful fabricator ($\rho_f{=}0.05$), complete index. Mean $\pm$ SD over 5 seeds. FPR is on genuine references; R-F1/F2/F3 are recall per defective family at the operating point; PPV assumes 2\% prevalence.}
+\label{tab:main}
+\centering\footnotesize
+\input{tab_main}
+\end{table*}
+
+Fig.~\ref{fig:family} and Table~\ref{tab:f3} show where each verifier succeeds. Title-only lookup is excellent on invented references
+(recall \NVthreeFone{}) but nearly blind to chimeric ones (\NVthreeFtwo{}), because a chimeric reference carries a real title; it also misses perturbations
+of every field except the title. Full-field checking catches invented and chimeric references essentially always (\NVtwoFone{}, \NVtwoFtwo{}) but misses
+many perturbed-real ones, mainly one-word title changes (recall \NVtwoSubTitle{}) and venue or publisher swaps (\NVtwoSubVenue{}).
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.93\columnwidth]{figures/fig_recall_by_family}
+\caption{Recall of defective references at the 5\%-FPR operating point, by fabrication family (mean $\pm$ SD, 5 seeds). Dotted line: chance (0.05).}
+\label{fig:family}
+\end{figure}
+
+\begin{table}[t]
+\caption{Recall on F3 (perturbed-real) by altered field, $\rho_f{=}0.05$, mean over 5 seeds.}
+\label{tab:f3}
+\centering\footnotesize
+\resizebox{\columnwidth}{!}{\input{tab_f3}}
+\end{table}
+
+\subsection{Fabricator format fidelity (RQ1, robustness)}
+Fig.~\ref{fig:fidelity} varies the fabricator's malformation rate. Format-only methods gain signal only when the fabricator is sloppier than
+genuine authors: V1's AUROC rises from \NVoneRAuroc{} to \NVoneAurocMid{} and \NVoneAurocHigh{} as $\rho_f$ goes 0.05, 0.25, 0.50, and the rule R1's
+to \NRoneAurocHigh{} at 0.50. V2 is essentially unaffected (\NVtwoRAuroc{} to \NVtwoAurocHigh{}) and V3 is flat (about 0.70).
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.93\columnwidth]{figures/fig_fidelity_sweep}
+\caption{AUROC (defective vs genuine) as the fabricator's format-malformation rate $\rho_f$ grows; genuine references stay at 0.05.}
+\label{fig:fidelity}
+\end{figure}
+
+\subsection{Index coverage (RQ3)}
+Fig.~\ref{fig:coverage} shows that with thresholds fixed, V2's false-positive rate rises almost exactly as $(1-c)+0.05c$: \NVtwoFprNinety{} at
+$c{=}0.9$, \NVtwoFprHalf{} at $c{=}0.5$ and \NVtwoFprQuarter{} at $c{=}0.25$. Recall \emph{rises} (to \NVtwoRecQuarter{} at $c{=}0.25$) only because references whose
+true record was removed can no longer be matched and are flagged, so the gain is not detection skill. At an assumed 2\% prevalence the PPV of V2
+falls from \NVtwoPpv{} (complete index) to \NVtwoPpvNinety{} (90\%), \NVtwoPpvHalf{} (50\%) and \NVtwoPpvQuarter{} (25\%): nearly every flag is then a false alarm.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.78\textwidth]{figures/fig_coverage_sweep}
+\caption{Effect of index incompleteness with full-coverage thresholds held fixed. Left: FPR on genuine references; dashed line is the H4 prediction. Right: PPV at 2\% assumed prevalence.}
+\label{fig:coverage}
+\end{figure*}
+
+\subsection{Error analysis: why perturbed-real references are hard}
+V2's F3 recall varies from \NfthreeMin{} to \NfthreeMax{} across seeds (SD \NVtwoFthreeSD{}) while its FPR stays near 0.05. Fig.~\ref{fig:dist} shows why:
+perturbed references other than author changes score about \NfThreeLo{}--\NfThreeHi{} (middle half, seed 0), in the same region as the lower tail of genuine references
+(typo plus dropped subtitle plus malformed fields); author changes score lower (median \NfThreeAuthMed{}) and are almost always caught (recall \NVtwoSubAuthor{}).
+The 5\%-FPR threshold falls inside the overlap region and moves between \NtauMin{} and \NtauMax{} across seeds (Fig.~\ref{fig:tau}). In the lowest-recall seed (seed \NseedMinRecall{})
+\NdegAtMinRecall{}\% of genuine candidates score below 0.90, more than the 5\% budget; in the other seeds at most \NdegOthersMax{}\% do, and F3 recall is at least \NrecOthersMin{}.
+This explanation is \emph{post hoc}, rests on five seeds, and was not tested further. Of the \NnFPtotal{} genuine references flagged by V2 over five seeds, \NFPetalPct{}\% had their
+author list destroyed (a bare ``et al.''), \NFPtitlePct{}\% had a materially altered title, and \NFPotherPct{}\% had only a combination of minor field mismatches.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.93\columnwidth]{figures/fig_v2_score_distributions}
+\caption{V2 score distributions by candidate class (seed 0). Perturbed-real references overlap the tail of genuine ones.}
+\label{fig:dist}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.93\columnwidth]{figures/fig_tau_vs_f3}
+\caption{V2 recall on F3 versus the mean learned threshold $\tau$, one point per seed (exploratory).}
+\label{fig:tau}
+\end{figure}
+
+\subsection{Outcome of the frozen decision rules}
+Table~\ref{tab:hyp} shows that all five pre-specified rules were met. Section~\ref{sec:discussion} explains why that outcome is less informative than it looks.
+
+\begin{table}[t]
+\caption{Frozen decision rules and outcomes (mean over 5 seeds).}
+\label{tab:hyp}
+\centering\footnotesize
+\resizebox{\columnwidth}{!}{\input{tab_hyp}}
+\end{table}
+
+\section{Discussion}\label{sec:discussion}
+\textbf{What is by design and what is informative.} H1, H1b and H4 are close to consequences of the simulation: a format-faithful fabricator is
+built so that format carries no label; a sloppy fabricator is built to add format signal; and a record deleted from a closed-world index cannot be
+matched, so FPR must rise with $1-c$. Their confirmation shows the pipeline behaves as intended, not that the world works this way. The
+informative results are quantitative and non-obvious: (i) the existence-versus-consistency gap is large and measurable (title-only recall \NVthreeFone{} on invented but \NVthreeFtwo{} on chimeric); (ii) the largest residual errors are near-misses (one changed title word or venue), which hide inside the tolerance needed
+for benign typing noise; (iii) the 5\% operating point is unstable when the genuine-score tail is as heavy as the FPR budget; and (iv) PPV collapses with coverage
+even when AUROC remains high, so a verifier that is excellent in the lab can produce mostly false alarms at deployment.
+
+\textbf{Relation to the review.} The results support the review's computational claims only within the simulation: when fabrications are format-faithful,
+format-only signals are uninformative, and existence checks are insufficient without field-level consistency. They say nothing about whether
+\emph{people} are fooled by format; that remains untested here.
+
+\textbf{Practical implications (untested).} Because a missing record is indistinguishable from a fabricated one for a lookup-only tool, reporting flags
+together with index coverage, and routing ``no match'' to an \textsc{uncertain} class instead of ``fabricated'', appear worth evaluating. We did not evaluate them.
+The PPV behaviour here is consistent in kind with HALLMARK's emphasis on false-positive rates \cite{reizinger2026}, but the numbers are not comparable.
+
+\section{Deviations from the Frozen Protocol}\label{sec:deviations}
+Two defects were found \emph{after} the first frozen run, by reading individual false-negative examples rather than aggregate metrics, and all nine original unit tests had passed.
+\textbf{D1 (parser):} an accent-stripping regular expression read the macro \verb|\book{...}| as the accent \verb|\b| plus the letter ``o'', turning titles such as
+\emph{Narrative of Molloy} into ``Narrative of ookMolloy'' in 53 of 468 records. \textbf{D2 (label noise):} F3 perturbations were applied before benign noise, so later noise
+could erase the altered field; 16 of 468 F3 candidates in seed 0 (3.4\%) were then identical to the genuine record yet labelled defective. Both were fixed, regression
+tests were added, all five seeds were re-run with unchanged decision rules, and the first-run results were archived. Table~\ref{tab:prepost} shows the effect: the largest change in
+any listed metric is \NmaxDeltaFix{}, V2's F3 recall fell from \NpreVtwoFthree{} to \NVtwoFthree{}, and no decision-rule outcome changed. Because the defects were found by inspecting
+results, the re-run is not blind to the first run.
+
+\begin{table}[t]
+\caption{Effect of correcting defects D1 and D2 ($\rho_f{=}0.05$, complete index, mean over 5 seeds).}
+\label{tab:prepost}
+\centering\footnotesize
+\input{tab_prepost}
+\end{table}
+
+\section{Threats to Validity and Limitations}\label{sec:threats}
+\emph{Simulated fabrications:} rules, not an LLM; real fabrications may have artefacts our generator lacks or lack ones it has.
+\emph{Corpus:} a single personal bibliography, mostly humanities books (\NyearMin{}--\NyearMax{}), no DOIs, \NnArticle{} articles; the review concerns modern journal references with DOIs, so
+external validity is limited. \emph{Ground truth:} ``real'' means ``in the index''; entries were not independently verified.
+\emph{Closed world:} genuine candidates always have an indexed record at full coverage; real databases have coverage gaps and noisy matches.
+\emph{Parsing:} verifiers receive structured fields; parsing errors from raw reference strings are not modelled.
+\emph{Hand-set weights and perturbations:} V2's weights were fixed, not tuned, and F3 subtypes are equally weighted; V2 gives partial credit to different venue strings.
+\emph{Calibration:} V1's realised FPR (\NVoneRFpr{}) exceeds the 5\% target. \emph{Statistics:} five seeds, SD reported, no significance tests, and the
+$\tau$ explanation is post hoc. \emph{Protocol:} the smoke seed was inspected before decision rules were written, and defects D1 and D2 were found and fixed after the first run (Section~\ref{sec:deviations}). \emph{Baselines:} V2 and V3 are not
+reproductions of published tools and their numbers should not be read as tool performance.
+
+\section{Conclusion}
+In a controlled, offline simulation, format-only verification is at chance when fabrications are format-faithful and improves only as fabricators get sloppier;
+title-only existence checking cannot see chimeric or single-field defects; and full-field database consistency detects most defects (recall \NVtwoRRec{} at 5\% FPR)
+but is hostage to index completeness, with PPV at 2\% prevalence falling from \NVtwoPpv{} to \NVtwoPpvHalf{} at half coverage. Natural next steps are
+(1) real LLM-generated fabrications, (2) a modern DOI-bearing corpus checked against a live bibliographic API, and (3) a three-way verdict
+(verified, contradicted, unverifiable) evaluated against the coverage effect. Code, protocol, logs and the AI-assistance log are in the accompanying repository.
+
+\section*{AI-Use Disclosure}
+This project was developed with AI assistance (Claude, Anthropic) for planning, code generation, debugging, analysis scripts, figure generation and drafting.
+All reported numbers are produced by the released code; sources were checked against primary pages during the project, and the full prompt and verification
+record is in \texttt{ai\_assistance\_log.md}. The author is responsible for the content.

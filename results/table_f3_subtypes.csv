@@ -1,0 +1,4 @@
+verifier,author,locator,title,venue,year
+V1_format_LR,0.102,0.101,0.114,0.048,0.095
+V3_title_only,0.020,0.009,0.846,0.036,0.041
+V2_full_field,0.995,0.706,0.611,0.579,0.833

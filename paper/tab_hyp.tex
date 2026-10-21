@@ -1,0 +1,11 @@
+\begin{tabular}{@{}llcc@{}}
+\toprule
+ID & Frozen decision rule & Observed & Outcome \\
+\midrule
+H1 & V1 AUROC at $\rho_f{=}0.05$ in [0.45, 0.60] & 0.504 & supported \\
+H1b & V1 AUROC rise (0.05$\to$0.50) $\geq$ 0.15 & +0.417 & supported \\
+H2 & V2 recall $\geq$ 0.85 (FPR 5\%, $c{=}1$) & 0.918 & supported \\
+H3 & V3 recall $\leq$ 0.20 on F2 and F3 non-title subtypes & max 0.041 & supported \\
+H4 & $|$FPR$-[(1{-}c){+}0.05c]|\leq 0.05$ for all $c$ & max dev 0.005 & supported \\
+\bottomrule
+\end{tabular}

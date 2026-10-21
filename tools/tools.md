@@ -1,5 +1,0 @@
-* **DOI / Crossref** - [https://www.crossref.org/](https://www.crossref.org/) - The primary authoritative registry used in this repository to verify that a Document Object Identifier genuinely resolves to a published paper.
-* **arXiv** - [https://arxiv.org/](https://arxiv.org/) - An open-access archive used as a primary verification source to check preprints and recent computational research references.
-* **Google Scholar** - [https://scholar.google.com/](https://scholar.google.com/) - A broad scholarly database used to cross-reference author publication histories, claim existence, and general citation metrics.
-* **Semantic Scholar** - [https://www.semanticscholar.org/](https://www.semanticscholar.org/) - An AI-backed academic graph used to verify internal consistency of metadata and citation graphs for candidate references.
-* **PubMed** - [https://pubmed.ncbi.nlm.nih.gov/](https://pubmed.ncbi.nlm.nih.gov/) - The authoritative database used specifically to verify the existence and accuracy of medical and clinical citations.

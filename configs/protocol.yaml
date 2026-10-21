@@ -1,0 +1,19 @@
+# FROZEN EXPERIMENT PROTOCOL  (see docs/protocol_freeze.txt for hash + timestamp)
+# Changes after freezing must be logged in research_decisions.md (section "Protocol deviations").
+corpus:
+  name: frankenstein.bib
+  locate_with: "kpsewhich -format=bib frankenstein.bib"   # TeX Live / CTAN package 'frankenstein'
+  min_title_chars: 8
+seeds: [0, 1, 2, 3, 4]          # reported runs
+smoke_seed: 999                  # development only; NEVER reported
+n_splits: 5                      # grouped K-fold (groups = anchor record)
+fpr_target: 0.05                 # operating point fixed on TRAINING folds only
+rho_g: 0.05                      # format-malformation rate for genuine candidates
+rho_f_levels: [0.05, 0.25, 0.50] # fabricator format fidelity; 0.05 == "format-faithful" null condition
+coverage_levels: [1.0, 0.90, 0.75, 0.50, 0.25]   # index completeness (swept at rho_f = 0.05 only)
+prevalence: 0.02                 # assumed prevalence of defective refs for PPV calculation
+verifiers: [V0_random, R1_wellformed_rule, V1_format_LR, V3_title_only, V2_full_field]
+v2_weights: {title: 0.40, authors: 0.30, year: 0.10, venue_pub: 0.10, locator: 0.10}
+topk_retrieval: 5
+primary_metric: "recall of defective references at FPR=5% on genuine references (out-of-fold)"
+secondary_metrics: ["AUROC (mean over folds)", "per-family recall", "PPV at assumed 2% prevalence"]

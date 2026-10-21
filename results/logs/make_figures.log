@@ -1,0 +1,1 @@
+figures: ['fig_coverage_sweep.pdf', 'fig_coverage_sweep.png', 'fig_fidelity_sweep.pdf', 'fig_fidelity_sweep.png', 'fig_recall_by_family.pdf', 'fig_recall_by_family.png', 'fig_tau_vs_f3.pdf', 'fig_tau_vs_f3.png', 'fig_v2_score_distributions.pdf', 'fig_v2_score_distributions.png']

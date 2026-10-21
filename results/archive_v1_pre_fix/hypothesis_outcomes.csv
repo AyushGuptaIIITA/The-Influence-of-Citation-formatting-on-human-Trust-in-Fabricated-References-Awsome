@@ -1,0 +1,6 @@
+id,observation,supported
+H1,"V1 AUROC at rho_f=0.05 = 0.498 (rule: in [0.45,0.60])",True
+H1b,V1 AUROC rho_f 0.50 - 0.05 = +0.426 (rule: >=0.15),True
+H2,V2 recall(ALL) at FPR5% = 0.931 (rule: >=0.85),True
+H3,"V3 recall F2=0.037, F3:year=0.041, F3:author=0.032, F3:venue=0.048, F3:locator=0.025 (rule: all <=0.20)",True
+H4,"V2 FPR(obs vs pred) c=0.9: 0.148 vs 0.145, c=0.75: 0.286 vs 0.287, c=0.5: 0.524 vs 0.525, c=0.25: 0.764 vs 0.762 (rule: |diff|<=0.05)",True

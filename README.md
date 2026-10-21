@@ -1,56 +1,60 @@
-# Awesome Citation Formatting and Trust
+# AITR Lab 02 - Format-only vs title-only vs full-field citation verification (controlled simulation)
 
-# Short Description
-A curated collection of research papers, datasets, tools, implementations, and learning resources exploring how citation formatting influences human trust in fabricated and AI-generated references.
+**Author:** Ayush Gupta (MSE2026011), IIIT Prayagraj. **Course:** AI Tools for Research (post-mid-sem implementation paper).
+**Continues:** the author's review *The Influence of Citation Formatting on Human Trust in Fabricated References*.
 
-## Contents
-* [Overview](#overview)
-* [AI-Assisted Research Paper](#ai-assisted-research-paper)
-* [Citation Integrity Audit](#citation-integrity-audit)
-* [Curated Research Papers](#curated-research-papers)
-* [Datasets](#datasets)
-* [Tools and Libraries](#tools-and-libraries)
-* [GitHub Implementations](#github-implementations)
-* [Tutorials and Learning Resources](#tutorials-and-learning-resources)
-* [License](#license)
+## Question
+When fabricated references are format-faithful, (RQ1) how well can format-only signals separate them from genuine ones; (RQ2) what do title-only
+and full-field database checks each detect and miss per fabrication family; (RQ3) how do they degrade when the reference index is incomplete?
+**No novelty is claimed** (HALLMARK and CiteTracer exist). Fabrications are **rule-generated, not LLM output**; nothing is claimed about human trust.
 
-## Overview
-The mass production of scholarly-looking text by large language models (LLMs) has made a specific failure mode highly consequential: the fabricated citation. Generative models routinely invent references that are stylistically perfect yet point to nonexistent work, with audits showing chatbots invent between roughly one-fifth and over half of their references. Research demonstrates that formal citation apparatus functions as a peripheral authority cue processed heuristically rather than verified systematically, leveraging cognitive fluency and the "seductive allure" of scientific-looking detail. This repository curates cross-disciplinary research on citation fabrication, source credibility, and mitigation strategies.
+## Headline results (mean over 5 seeds; format-faithful fabricator, complete index; FPR target 5%)
+| Verifier | AUROC | FPR | Recall |
+|---|---|---|---|
+| V0 random | 0.508 | 0.051 | 0.050 |
+| R1 well-formed rule | 0.497 | 0.228 | 0.223 |
+| V1 format-only LR | 0.504 | 0.085 | 0.089 |
+| V3 title-only lookup | 0.693 | 0.038 | 0.406 (0.95 invented, 0.04 chimeric) |
+| V2 full-field check | 0.985 | 0.052 | 0.918 (F3 perturbed-real 0.756, range 0.425-0.906 over seeds) |
 
-## AI-Assisted Research Paper
-**[The Influence of Citation formatting on human Trust in Fabricated References]**
-This paper reviews interdisciplinary evidence on why generative AI's fabricated references are frequently believed by readers rather than questioned. Drawing on cognitive psychology and credibility science, it explores how formal citation apparatus functions as a peripheral authority cue that triggers heuristic trust, and synthesizes current approaches to reference verification in the era of large language model. 
-[View Paper](paper/AI_Assisted_Research_Paper.pdf)
+At 50% index coverage V2's FPR is 0.526 and PPV at 2% assumed prevalence is 0.036. All five frozen decision rules were met, but H1, H1b and H4 are near-consequences of the design (paper Sec. VII).
+Two defects (D1 parser, D2 label noise) were found after the first run and fixed; see `docs/hypotheses_and_freeze.md` and `results/archive_v1_pre_fix/`.
 
-## Citation Integrity Audit
-[View Audit](citation-audit/Citation_Integrity_Audit.pdf)
-All references, claims, and scholarly papers included in this repository and the associated research paper have been independently verified by a human to ensure no AI-hallucinated resources are present. Every title, author list, publication year, and DOI was cross-checked against authoritative databases like Google Scholar , DOI links, or publisher websites to confirm its genuine existence and relevance.
-Statement confirming that all references were checked against authoritative databases.
+## Layout
+```
+README.md  requirements.txt  research_decisions.md  research_brief_G1.md  baseline_validation.md  ai_assistance_log.md
+configs/protocol.yaml        frozen settings (hash in docs/protocol_freeze.txt)
+data/README.md               how to obtain the corpus (not redistributed)
+src/                         bibparse, corpus, generate, features, verifiers, experiment, data
+scripts/                     env_check, validate_baselines, run_experiments, summarize, error_analysis, compare_pre_post_fix, make_figures, make_paper_numbers, reproduce_all.sh
+tests/test_pipeline.py       12 unit/regression tests
+results/                     results_main.csv, summaries, tables, figures/, logs/, archive_v1_pre_fix/
+paper/                       main.tex (IEEEtran), body.tex, preview.tex (stand-in), references.bib, numbers.tex, tab_*.tex, figures/, preview.pdf
+docs/                        hypotheses_and_freeze.md, protocol_freeze.txt, self_review_AI.md, DEMO_5min.md, devnotes_raw.txt
+```
 
-## Curated Research Papers
-An extended, curated bibliography of verified scholarly papers covering LLM hallucinations, the illusory truth effect, and the persuasive power of scientific formatting.
-[View Paper](references/references.md)
+## Reproduce (Python 3.12.3; one CPU core)
+```bash
+pip install -r requirements.txt                 # [TESTED with the pinned versions]
+sudo apt install texlive-latex-extra            # provides frankenstein.bib; or set FRANKENSTEIN_BIB=/path (see data/README.md)
+bash scripts/reproduce_all.sh                   # [TESTED] ~4 min; regenerates all results, figures and paper/preview.pdf
+sha256sum results/results_main.csv              # [TESTED] expect e322aeec00da83dac07d72db4b27b249cac72a0f87f005b9f25194b3e48b06e9
+python3 -m unittest tests.test_pipeline         # [TESTED] 12 tests
+cd paper && pdflatex main && bibtex main && pdflatex main && pdflatex main   # [TEST REQUIRED] needs IEEEtran (e.g. Overleaf); only preview.tex was compiled here
+```
+Individual steps: `python3 scripts/run_experiments.py` (~2 min), `python3 scripts/summarize.py`, `python3 scripts/make_figures.py`.
 
+## Minimum reproduction checklist (for a second student)
+- [ ] Corpus SHA-256 matches `data/README.md`. - [ ] `env_check.py` prints `ENV OK`. - [ ] 12 tests pass.
+- [ ] `results_main.csv` hash matches. - [ ] `results/table_main.csv` matches the table above. - [ ] `paper/preview.pdf` builds.
 
-## Datasets
-A compiled list of verification platforms and authoritative bibliographic databases essential for cross-referencing AI outputs and confirming source existence.
-[View Paper](datasets/datasets.md)
+## Limitations (short)
+Simulated fabrications; closed-world index; humanities books 1657-2000 without DOIs; entries assumed real; 5 seeds, no significance tests; V2/V3 are not published tools. Full list: paper Sec. IX.
 
+## Credits, licence, AI disclosure
+Corpus: Matt Swift's `frankenstein` bundle (TeX Live). Libraries: NumPy, pandas, SciPy, scikit-learn, Matplotlib, PyYAML.
+AI assistance (Claude, Anthropic) was used for planning, code, debugging, analysis and drafting; see `ai_assistance_log.md`.
+Code licence: **[STUDENT: choose a licence before publishing]**. No secrets, API keys or restricted data are in this repository.
 
-## Tools and Libraries
-Open-source tools for hallucination and citation-fabrication detection (SelfCheckGPT, FActScore, FacTool, RAGAs, CiteVerifier), plus authoritative bibliographic APIs (CrossRef, OpenAlex, Semantic Scholar, PubMed, Wayback Machine) and general RAG frameworks.
-[View Paper](tools/tools.md)
-
-## GitHub Implementations
-A collection of open-source codebases, automated detection pipelines, and technical frameworks designed to identify or mitigate AI citation hallucinations.
-[View Paper](implementations/github-repositories.md)
-
-## Tutorials and Learning Resources
-* **How to spot hallucinations in AI-generated citations and references** - [Editage Blog](https://www.editage.com/blog/how-to-verify-ai-generated-citations-references-steps-checklist-examples/) - Discusses practical verification steps for AI citation fabrication[cite: 2].
-* **AI-generated references: 1 in 5 are fake** - [Enago Academy](https://www.enago.com/responsible-ai-movement/resources/ai-generated-fake-references-scholarly-integrity/) - Covers how academic publishers handle AI reference accuracy[cite: 2].
-* **Why readers notice citation quality more than you think** - [StrongMocha](https://strongmocha.com/digital-publishing-trust/citation-quality-matters/) - Explores how formatted references increase credibility for lay readers[cite: 2].
-* **How to Cite ChatGPT and Generative AI** - [APA Style Blog](https://apastyle.apa.org/blog/how-to-cite-chatgpt) - Official guidelines detailing how the presence and formatting of AI-generated text should be transparently documented to maintain academic trust.
-* **Evaluating Information: Fake Citations and AI Hallucinations** - [University of Nevada, Reno Libraries](https://libguides.unr.edu/evaluating-information/ai-hallucinations) - An academic tutorial designed for students and researchers on how to critically evaluate AI outputs and cross-reference fabricated citations.
-
-## License
-MIT License
+## Cite
+Gupta, A. (2026). *How Far Can a Reference Be Judged by Its Format?* Course paper, IIIT Prayagraj.

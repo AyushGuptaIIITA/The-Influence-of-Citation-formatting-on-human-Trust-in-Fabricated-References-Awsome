@@ -1,0 +1,8 @@
+PROTOCOL FREEZE
+timestamp_utc: 2026-10-17T05:00:59Z
+protocol.yaml sha256: 0be9f837e8199919224c656c9d5076f338b982824047d31530f5c693ad3b2631
+hypotheses_and_freeze.md sha256 (pre-footer): 6d3e799380d2b616ebc28cf3009b0d34dc13a929c50a634235a969a3325a6e84
+src/*.py combined sha256: 94ffb9a3c1f3d168cf2422e710444df94989305e12d49a38c5c110ab632ca50b
+corpus sha256: 64ec9db5903046268e533ab623455a70a58f7ebea14e34350e827e99deba26c1
+reported seeds run before freeze: none
+smoke seed 999 run before freeze: yes (results/logs/smoke_run_seed999.log; not reported)

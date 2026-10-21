@@ -1,0 +1,35 @@
+{
+  "corpus_sha256": "64ec9db5903046268e533ab623455a70a58f7ebea14e34350e827e99deba26c1",
+  "n_records": 468,
+  "seed_used": 999,
+  "self_match": {
+    "v2_min": 1.0,
+    "v3_min": 1.0,
+    "frac_best_rid_correct": 1.0
+  },
+  "single_field_mean_score_drop_V2": {
+    "year": 0.10663524130190792,
+    "first_author": 0.31314814814814806,
+    "venue_or_publisher": 0.06822314150002025
+  },
+  "weights": {
+    "title": 0.4,
+    "authors": 0.3,
+    "year": 0.1,
+    "venue_pub": 0.1,
+    "locator": 0.1
+  },
+  "determinism_hash_equal": true,
+  "v1_label_permutation_auroc": {
+    "mean": 0.5066390712238056,
+    "min": 0.4755590438599028,
+    "max": 0.524117179460008
+  },
+  "fold_group_overlap": 0,
+  "genuine_v2_quantiles": {
+    "0.01": 0.6666666666666667,
+    "0.05": 0.9272582972582973,
+    "0.25": 0.9938953284158764,
+    "0.5": 1.0
+  }
+}

@@ -1,0 +1,16 @@
+# Running dev notes (honest record, appended as events happen)
+2026-10-16T09:06:16Z project skeleton created. NOTE: first mkdir attempt failed because /bin/sh did not expand {a,b} braces; re-ran under bash.
+2026-10-16T09:06:16Z LIT CHECK: Walters&Wilder VERIFIED (Sci Rep 13:14045; 636 cites/84 papers; 55%/18% fabricated; 43%/24% of real cites had substantive errors).
+2026-10-16T09:06:16Z LIT CHECK: HALLMARK (arXiv 2607.18360) fetched+read: close prior art (chimeric_title, hybrid_fabrication, near_miss_title; partial DB coverage -> false positives). Novelty claim DROPPED; study reframed as small offline controlled simulation.
+2026-10-16T09:06:16Z LIT CHECK: Cabezas-Clavijo arXiv 2505.18059 VERIFIED; journal version JDIS 11(2):342-354 (2026) DOI 10.1515/JDIS-2025-0326 (UNIR repository page).
+2026-10-16T09:06:16Z LIT CHECK: Khurana et al. arXiv 2606.13104 VERIFIED (abstract numbers match the review).
+2026-10-16T09:06:16Z LIT CHECK: Liu, Stammbach, Henderson arXiv 2606.21155 VERIFIED (first author is Patty Liu).
+2026-10-16T09:06:16Z LIT CHECK: Aslett et al. Nature 625(7995):548-556 VERIFIED (PMC + RePEc). The earlier AI-generated T23 references.bib had 548--554 = ERROR.
+2026-10-17T05:00:59Z PROTOCOL FROZEN. Smoke seed 999 inspected BEFORE decision rules were written (disclosed).
+2026-10-17T10:21:50Z BUG: preview.tex fatal 'font expansion only possible with scalable fonts' (microtype + T1, lmodern absent). Same root cause as earlier CSUR harness; removed T1+microtype from the stand-in only.
+2026-10-17T17:14:19Z DEFECTS FOUND while reading qualitative false-negative examples: D1 parser regex mangles ook{} (53/468 titles); D2 F3 label noise (16/468 F3 candidates at seed 0 identical to genuine). All 9 unit tests had passed. Old results archived to results/archive_v1_pre_fix/.
+2026-10-18T03:12:04Z BUG (new code): generate.py NameError 're' not imported after D2 rewrite; added import.
+2026-10-18T03:12:26Z D1/D2 logged in hypotheses_and_freeze.md; regression tests added (12 tests).
+2026-10-18T12:46:12Z starting full reproduce_all.sh run to test bit-for-bit reproducibility
+2026-10-18T12:46:16Z tool note: 'time' not in /bin/sh; reran reproduce_all.sh under bash.
+2026-10-18T18:08:02Z BUG: fig_tau_vs_f3 had hard-coded xlim from pre-fix data, hiding seed 1 (tau~0.88, recall 0.43) after re-run; switched to autoscale.

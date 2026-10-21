@@ -1,3 +1,0 @@
-* **AuthorityBench** - [arXiv:2606.13104](https://arxiv.org/abs/2606.13104) - A 220,564-prompt, four-domain benchmark designed to evaluate how citation presence biases large language models into accepting false claims.
-* **SciFact** - [Allen AI](https://allenai.org/data/scifact) - A dataset of 1.4K expert-written scientific claims paired with evidence-based abstracts, heavily used for training automated citation-verification systems.
-* **HaluEval (Hallucination Evaluation)** - [GitHub](https://github.com/RUCAIBox/HaluEval) - A large-scale collection of generated and annotated hallucinated samples for evaluating language models, useful for testing reference fabrication.

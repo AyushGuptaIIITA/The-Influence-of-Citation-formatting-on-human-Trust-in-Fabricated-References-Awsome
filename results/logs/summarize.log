@@ -1,0 +1,40 @@
+ id                                                                                                                           observation  supported
+ H1                                                                                 V1 AUROC at rho_f=0.05 = 0.504 (rule: in [0.45,0.60])       True
+H1b                                                                                    V1 AUROC rho_f 0.50 - 0.05 = +0.417 (rule: >=0.15)       True
+ H2                                                                                        V2 recall(ALL) at FPR5% = 0.918 (rule: >=0.85)       True
+ H3                               V3 recall F2=0.039, F3:year=0.041, F3:author=0.020, F3:venue=0.036, F3:locator=0.009 (rule: all <=0.20)       True
+ H4 V2 FPR(obs vs pred) c=0.9: 0.146 vs 0.145, c=0.75: 0.290 vs 0.287, c=0.5: 0.526 vs 0.525, c=0.25: 0.768 vs 0.762 (rule: |diff|<=0.05)       True
+
+=== MAIN TABLE (rho_f=0.05, coverage=1.0): mean +/- sd over 5 seeds ===
+          verifier       AUROC         FPR      Recall          F1          F2          F3      PPV@2%
+         V0_random 0.508±0.015 0.051±0.001 0.050±0.010 0.048±0.014 0.049±0.012 0.054±0.016 0.020±0.003
+R1_wellformed_rule 0.497±0.006 0.228±0.008 0.223±0.005 0.222±0.023 0.237±0.006 0.210±0.021 0.020±0.001
+      V1_format_LR 0.504±0.016 0.085±0.013 0.089±0.016 0.085±0.018 0.091±0.016 0.092±0.019 0.022±0.007
+     V3_title_only 0.693±0.006 0.038±0.008 0.406±0.012 0.948±0.015 0.039±0.011 0.232±0.016 0.183±0.030
+     V2_full_field 0.985±0.002 0.052±0.004 0.918±0.070 1.000±0.000 0.998±0.003 0.756±0.212 0.267±0.026
+
+=== F3 SUBTYPE RECALL (rho_f=0.05) ===
+     verifier author locator title venue  year
+ V1_format_LR  0.102   0.101 0.114 0.048 0.095
+V3_title_only  0.020   0.009 0.846 0.036 0.041
+V2_full_field  0.995   0.706 0.611 0.579 0.833
+
+=== FIDELITY SWEEP: AUROC(ALL) by rho_f ===
+          verifier  rho_f=0.05  rho_f=0.25   rho_f=0.5
+R1_wellformed_rule 0.497±0.006 0.700±0.010 0.827±0.008
+      V1_format_LR 0.504±0.016 0.751±0.010 0.921±0.004
+     V3_title_only 0.693±0.006 0.703±0.011 0.709±0.011
+     V2_full_field 0.985±0.002 0.988±0.004 0.988±0.002
+
+=== COVERAGE SWEEP (rho_f=0.05) ===
+     verifier  coverage         FPR      Recall PPV@2%
+V3_title_only      1.00 0.038±0.008 0.406±0.012  0.183
+V3_title_only      0.90 0.119±0.013 0.456±0.012  0.073
+V3_title_only      0.75 0.236±0.008 0.522±0.019  0.043
+V3_title_only      0.50 0.461±0.028 0.667±0.018  0.029
+V3_title_only      0.25 0.721±0.029 0.823±0.031  0.023
+V2_full_field      1.00 0.052±0.004 0.918±0.070  0.267
+V2_full_field      0.90 0.146±0.005 0.926±0.063  0.115
+V2_full_field      0.75 0.290±0.002 0.937±0.054  0.062
+V2_full_field      0.50 0.526±0.003 0.960±0.036  0.036
+V2_full_field      0.25 0.768±0.006 0.980±0.019  0.025

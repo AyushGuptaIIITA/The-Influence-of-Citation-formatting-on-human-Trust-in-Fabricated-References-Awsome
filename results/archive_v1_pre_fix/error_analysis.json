@@ -1,0 +1,80 @@
+{
+  "per_seed": {
+    "0": {
+      "tau_per_fold": [
+        0.89,
+        0.95,
+        0.915,
+        0.946,
+        0.946
+      ],
+      "frac_genuine_v2_lt_0.80": 0.0406,
+      "frac_genuine_v2_lt_0.90": 0.047,
+      "recall_F3": 0.748
+    },
+    "1": {
+      "tau_per_fold": [
+        0.903,
+        0.95,
+        0.9,
+        0.878,
+        0.878
+      ],
+      "frac_genuine_v2_lt_0.80": 0.0385,
+      "frac_genuine_v2_lt_0.90": 0.047,
+      "recall_F3": 0.598
+    },
+    "2": {
+      "tau_per_fold": [
+        0.954,
+        0.975,
+        0.97,
+        0.969,
+        0.966
+      ],
+      "frac_genuine_v2_lt_0.80": 0.0256,
+      "frac_genuine_v2_lt_0.90": 0.0385,
+      "recall_F3": 0.91
+    },
+    "3": {
+      "tau_per_fold": [
+        0.95,
+        0.975,
+        0.971,
+        0.95,
+        0.959
+      ],
+      "frac_genuine_v2_lt_0.80": 0.0171,
+      "frac_genuine_v2_lt_0.90": 0.0342,
+      "recall_F3": 0.908
+    },
+    "4": {
+      "tau_per_fold": [
+        0.938,
+        0.95,
+        0.938,
+        0.948,
+        0.936
+      ],
+      "frac_genuine_v2_lt_0.80": 0.0171,
+      "frac_genuine_v2_lt_0.90": 0.0278,
+      "recall_F3": 0.816
+    }
+  },
+  "fp_cause_counts": {
+    "other/field_combination": 38,
+    "title_altered": 37,
+    "authors_bare_et_al": 36,
+    "authors_bare_et_al+year_malformed": 5,
+    "year_malformed": 3,
+    "year_malformed+title_altered": 1,
+    "authors_lowercased+title_altered": 1
+  },
+  "fn_by_subtype": {
+    "title": 197,
+    "venue": 197,
+    "year": 56,
+    "locator": 26,
+    "author": 1
+  }
+}
