@@ -27,7 +27,7 @@ citation verification, fabricated references, hallucination detection, controlle
 \section{Introduction}
 Large language models can emit references with plausible authors, titles, venues and years that point to no real work.
 Walters and Wilder manually checked 636 citations from ChatGPT-written literature reviews and found 55\% (GPT-3.5) and
-18\% (GPT-4) entirely fabricated \cite{walters2023}. A companion review by the author \cite{gupta2026review} synthesised why such
+18\% (GPT-4) entirely fabricated \cite{walters2023}. A companion review by the author synthesised why such
 references are believed: their form acts as a peripheral authority cue, and verification effort is rarely applied. That review
 ended with two computational claims that it could not test itself: (i) because fabricated references are format-faithful,
 \emph{format inspection alone} cannot discriminate them; and (ii) automated matching can confirm that a source \emph{exists} but
@@ -67,7 +67,7 @@ references that are fabricated; the table now says what each study measured. The
 \node (d) [box, below=of c] {\textbf{Unearned trust}\\false claim is accepted as credible};
 \draw[arr] (a)--(b); \draw[arr] (b)--(c); \draw[arr] (c)--(d);
 \end{tikzpicture}
-\caption{The heuristic-processing loop for fabricated citations, as argued in the author's review \cite{gupta2026review}.
+\caption{The heuristic-processing loop for fabricated citations, as argued in the author's review.
 This is the motivating hypothesis; the present study does \emph{not} test human readers.}
 \label{fig:loop}
 \end{figure}

@@ -54,7 +54,7 @@ Simulated fabrications; closed-world index; humanities books 1657-2000 without D
 ## Credits, licence, AI disclosure
 Corpus: Matt Swift's `frankenstein` bundle (TeX Live). Libraries: NumPy, pandas, SciPy, scikit-learn, Matplotlib, PyYAML.
 AI assistance (Claude, Anthropic) was used for planning, code, debugging, analysis and drafting; see `ai_assistance_log.md`.
-Code licence: MIT License (Selected to permit open academic sharing and reuse). No secrets, API keys or restricted data are in this repository.
+Code licence: **[STUDENT: choose a licence before publishing]**. No secrets, API keys or restricted data are in this repository.
 
 ## Cite
-Gupta, A. (2026). *How Far Can a Reference Be Judged by Its Format?* Course paper, IIIT Prayagraj.
+Gupta, A. (2026). *The Influence of Citation Formatting on Human Trust in Fabricated References.* Course paper, IIIT Prayagraj.

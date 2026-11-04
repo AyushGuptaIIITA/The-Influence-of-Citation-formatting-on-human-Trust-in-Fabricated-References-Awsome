@@ -44,3 +44,11 @@ Labels: **VERIFIED** (checked from a source page retrieved in this project, or b
 | D-11 | Paper in IEEEtran (`main.tex`) with a stand-in `preview.tex` sharing `body.tex` | IEEEtran not installed locally | `paper/` |
 | D-12 | Reuse review Fig. 1 and Table 1, correcting the Khurana row's description | Table called a model hallucination rate an "error rate" | paper Table I |
 | D-13 | Do not redistribute the corpus file | No licence stated in file | `data/README.md` |
+
+## 4. Next actions (student)
+1. Run `scripts/reproduce_all.sh` yourself and confirm the SHA-256 in `results/logs/results_main.sha256`.
+2. Compile `paper/main.tex` with IEEEtran in Overleaf (**[TEST REQUIRED]**; only `preview.tex` was compiled here).
+3. Read every module in `src/`; be ready to explain generation, thresholds, grouped CV and the two defects.
+4. Complete the "[STUDENT]" fields in `ai_assistance_log.md` truthfully.
+5. Fix the Aslett page range (548-556) in the T23 review's `references.bib`.
+6. Decide whether to verify L8 sources before reusing them elsewhere.
