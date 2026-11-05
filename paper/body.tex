@@ -56,7 +56,7 @@ Threats to validity can be found in Section~\ref{sec:threats}.
 \subsection{What the review established}
 Figure~\ref{fig:loop} replicates the explanation given in the review for why fake references are trusted. They have superficially
 credible characteristics which act as peripheral cues. These cues allow fluent processing and prevent systematic checking.
-Table~\ref{tab:review} summarises the statistical findings of the review. The percentage range given by Khurana et al (35-77%) was
+Table~\ref{tab:review} summarises the statistical findings of the review. The percentage range given by Khurana et al (35-77\%) was
 listed in the review draft as the ``error rate''. This however, refers to the hallucination rate when language models are asked
 to judge claims. It is therefore a measurement of the language model behaviour rather than the proportion of fake references. This has been corrected in Table~\ref{tab:review}. The percentages in Table~\ref{tab:review} have also been verified using the abstracts or pages of the sources used during this project.
 
@@ -106,7 +106,7 @@ impact of format, title only matching, and index coverage.
 Hypotheses and numerical criteria were formulated and hashed in advance of running (Section~\ref{sec:protocol}).
 \textbf{H1:} Learned format-only classifier produces an AUROC in the range [0.45, 0.60] when using a format faithful fabricator.
 \textbf{H1b:} This AUROC increases by at least 0.15 when varying the malformation rate of the fabricator between 0.05 and 0.50.
-\textbf{H2:} Full field search will achieve a recall of $\geq$0.85 at a 5% FPR, with a complete index.
+\textbf{H2:} Full field search will achieve a recall of $\geq$0.85 at a 5\% FPR, with a complete index.
 \textbf{H3:} Title only search will achieve a recall of $\leq$0.20 on chimeric references and all non-title perturbations.
 \textbf{H4:} Full field search will have an FPR of within 0.05 of $(1-c)+0.05c$ when the full coverage threshold is held constant, with an index coverage of $c$.
 A development run was carried out to check if there were any issues, using a separate unreported seed. As a result the thresholds are known values and therefore not guesses. Two issues were found during the initial run and fixed (Section~\ref{sec:deviations}).
@@ -158,15 +158,15 @@ not copies of any published tools.
 \subsection{Protocol and metrics}\label{sec:protocol}
 There are 5 seeds (0-4), all of which retrain all candidates and folds. Folds are organised in groups according to their source
 record (variant of a record will never be split between training and test). All operational thresholds are set to the 5th (or 95th)
-percentile of real training scores meaning that each verifier has a 5% target FPR independent of test data. The primary metric is
+percentile of real training scores meaning that each verifier has a 5\% target FPR independent of test data. The primary metric is
 out-of-fold recall of faulty references using these thresholds. Secondary metrics are mean recall across folds, family specific
-recall and PPV at an assumed 2% prevalence. These are calculated using $\mathrm{PPV}=\frac{r\,\pi}{r\,\pi+f\,(1-\pi)}$ where recall = $r$,
+recall and PPV at an assumed 2\% prevalence. These are calculated using $\mathrm{PPV}=\frac{r\,\pi}{r\,\pi+f\,(1-\pi)}$ where recall = $r$,
 FPR = $f$ and prevalence = $\pi{=}0.02$. During the coverage sweep, a random proportion of $c$
 index records are excluded. Thresholds are not changed, they remain as in the full coverage experiments. The average result +/- $\pm$
 SD is given. No significance tests were conducted. The protocol file and hash was fixed prior to running.
 
 \subsection{Reproducibility}
-We ran the experiments using Python 3.12.3, scikit learn 1.8.0 [pedregosa2011], numpy 2.4.4, pandas 3.0.2, using one CPU core. All seeds and fidelities were run for around 2 minutes (python scripts/run_experiments.py). Figures and tables were created from these saved CSVs. No data was written manually.
+We ran the experiments using Python 3.12.3, scikit learn 1.8.0 [pedregosa2011], numpy 2.4.4, pandas 3.0.2, using one CPU core. All seeds and fidelities were run for around 2 minutes (python scripts/run\_experiments.py). Figures and tables were created from these saved CSVs. No data was written manually.
 
 \section{Baseline Validation}
 On a non-reported seed we verified that behaviour was identical; when records were duplicated exactly in \NnKept{} then V2
@@ -238,7 +238,7 @@ falls from \NVtwoPpv{} (complete index) to \NVtwoPpvNinety{} (90\%), \NVtwoPpvHa
 
 \subsection{Error analysis}
 V2's F3 recall ranges from \NfthreeMin{} to \NfthreeMax{} depending on seed (SD \NVtwoFthreeSD{}). This can be seen in fig.~\ref{fig:dist} where the
-perturbed references that are not author edits have scores of around \NfThreeLo{} to \NfThreeHi{} (middle 50%, seed 0), overlapping with the lower part of real reference scores
+perturbed references that are not author edits have scores of around \NfThreeLo{} to \NfThreeHi{} (middle 50\%, seed 0), overlapping with the lower part of real reference scores
 (typo + subtitle missing + malformed fields). The author edits have a lower median score (\NfThreeAuthMed{}) and are almost all detected (recall \NVtwoSubAuthor{}).
 The 5\%-FPR threshold sits within the overlapping region, ranging from \NtauMin{} to \NtauMax{} depending on seed (see fig.~\ref{fig:tau}). For the seed with the lowest recall (seed \NseedMinRecall{})
 \NdegAtMinRecall{}\% of real candidates had scores less than 0.90 so exceeded the 5\% budget. For the other seeds a maximum of \NdegOthersMax{}\% of real candidates had scores below 0.90,
@@ -286,7 +286,7 @@ a closed-world index cannot be matched, meaning FPR must increase with $1-c$. Th
 Two issues were identified after the initial frozen run, through analysing results rather than using summary statistics. All nine initial unit tests passed.
 \textbf{D1 (parser)} The accent removing regex interpreted the macro \verb|\book{...}| as an accent \verb|\b| character and the letter `o'. This resulted in titles such as
 \emph{Narrative of Molloy} being written to 53 out of 468 records as `Narrative of ookMolloy’. \textbf{D2 (label noise)} The F3 perturbations occurred prior to the benign noise meaning that
-the field may be reverted by the subsequent noise. 16 out of 468 F3 candidates from seed 0 (3.4%) were identical to the real record but marked as faulty. These were corrected, new regression
+the field may be reverted by the subsequent noise. 16 out of 468 F3 candidates from seed 0 (3.4\%) were identical to the real record but marked as faulty. These were corrected, new regression
 tests added and the five seeds ran again with the same decision rules. The results are shown in table ~\ref{tab:prepost}. The most significant change in the metrics is \NmaxDeltaFix{}.
 The recall for F3 on V2 decreased from \NpreVtwoFthree{} to \NVtwoFthree{} but no decision rule outcomes changed. As the issues were found by analysing the results, the second run is not blind.
 
@@ -306,8 +306,8 @@ The recall for F3 on V2 decreased from \NpreVtwoFthree{} to \NVtwoFthree{} but n
 \textit{Calibration}: The realised FPR in V1 is higher than 5\%. \textit{Statistics}: Only 5 seeds were used. Standard deviation values were used and no statistical significance was carried out. The $\tau$ was an a posteriori explanation. \textit{Protocol}: The smoke seed was examined before creating the decision rules. Issues D1 and D2 were identified after the first run and resolved (Section~\ref{sec:deviations}). \textit{Baseline}: V2 and V3 were not reproduced versions of published tools. Their numbers should not be interpreted as tool performance.
 
 \section{Conclusion}
-Format checks were random in controlled offline simulations (where fabrications were format-accurate), and only improved with increased laxity by fabricators. Title-based existence checks could not detect chimeric or single-field errors. Full-field database consistency detected the majority of errors (e.g. \NVtwoRRec{} had a 5% FPR),
-but was dependent on coverage, where the PPV dropped from \NVtwoPpv{} to \NVtwoPpvHalf{}, at 2% prevalence. Next steps would be to
+Format checks were random in controlled offline simulations (where fabrications were format-accurate), and only improved with increased laxity by fabricators. Title-based existence checks could not detect chimeric or single-field errors. Full-field database consistency detected the majority of errors (e.g. \NVtwoRRec{} had a 5\% FPR),
+but was dependent on coverage, where the PPV dropped from \NVtwoPpv{} to \NVtwoPpvHalf{}, at 2\% prevalence. Next steps would be to
 (1) conduct tests on actual LLM fabrications; (2) conduct tests on a modern DOI-containing corpus with a live bibliographic API; and (3) conduct a 3-outcome classification (verified, contradicted, unverifiable) and assess its performance in terms of coverage. The code, protocol, logs and AI assistance log can be found in the associated repository.
 
 \section*{AI-Use Disclosure}
